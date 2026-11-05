@@ -1,163 +1,245 @@
 # DigiKala BI Analytics
+### End-to-End Business Intelligence | SQL Server · SSIS · Power BI
 
-**An end-to-end business intelligence portfolio project using SQL Server, SSIS, dimensional modeling, DAX, and Power BI.**
+An independent Business Intelligence portfolio project built around historical e-commerce data from the DigiKala Open Data program.
 
-**داشبورد تحلیلی فارسی و راست‌به‌چپ دیجی‌کالا** — پروژه‌ای مستقل برای نمایش فرایند آماده‌سازی داده، طراحی انبار داده و ساخت گزارش‌های تعاملی هوش تجاری.
+The project demonstrates an end-to-end workflow: **data ingestion, ETL, dimensional data warehousing, semantic modeling, DAX calculations, and interactive reporting.**
 
-> **Project status:** Work in progress · **Report language:** Persian (RTL) · **Visual theme:** Graphite & Coral  
-> **Live dashboard:** Not publicly available yet. A public link will be added only if the applicable data-use and hosting requirements are satisfied.
+The Power BI report is designed in **Persian (RTL)** using a custom **Graphite & Coral** visual theme.
 
-## 1. Overview
+**Project focus:** Business Intelligence · Data Warehousing · Sales Analytics · Customer Analytics
 
-This project explores historical, sampled e-commerce data attributed to the DigiKala Open Data Mining Program. It demonstrates a practical BI workflow—from source-file assessment and ETL to a dimensional data warehouse, analytical measures, and an interactive Power BI report.
+**Status:** Active development and refinement
 
-**Main areas of work**
+**Interactive Dashboard:** Coming soon, subject to data-use permissions and hosting availability.
 
-- Data profiling, quality checks, and source reconciliation
-- Data ingestion with SQL Server Integration Services (**SSIS**)
-- SQL Server **staging** and **data warehouse** layers
-- Star-schema design, surrogate keys, and fact–dimension relationships
-- Power BI semantic modeling and **DAX** measures
-- Persian, **right-to-left (RTL)** dashboard design and interactive reporting
+---
 
-This is an **independent educational/portfolio project**, not an official DigiKala product or a report of DigiKala's total operational performance.
+## Dashboard Preview
 
-## 2. Dataset source, attribution, and permitted use
+The reporting solution provides interactive views of order activity, sales patterns, customer behavior, geographic performance, and products.
 
-### Data provenance
+**Executive Overview**
 
-The source files were downloaded from a third-party public repository:
 
-- **Dataset repository (maintained by Farshad):** [farshadnp/DigiKalaDataSet](https://github.com/farshadnp/DigiKalaDataSet)
-- **Original DigiKala Open Data program reference:** [digikala.com/opendata](https://www.digikala.com/opendata/)
 
-The repository maintainer states that the data was originally obtained from DigiKala's Open Data program. **I did not crawl, scrape, collect, or originally publish these datasets.** My work concerns the subsequent examination, preparation, integration, modeling, and analysis of the downloaded files.
+![Executive Overview](assets/screenshots/executive-overview.png)
 
-The source program requests the following acknowledgment:
 
-> This publication was supported by the Digikala Open Data Mining Program.
 
-This acknowledgment is reproduced as requested by the original data program; it **does not imply** that DigiKala sponsors, endorses, or is affiliated with this independent project.
+Additional screenshots of the reporting pages will be included as the project is finalized.
 
-### Data-use disclaimer
+## Project Objectives
 
-The original program documentation, as reproduced in the source repository, restricts **direct or indirect commercial use without written permission**. Availability of the files on GitHub should not be interpreted as a blanket license to redistribute or commercially use the underlying data.
+The goal of this project is to build a practical Business Intelligence solution using a structured analytical workflow rather than creating dashboards directly from raw source files.
 
-**The raw source datasets are intentionally excluded from this repository.** Publication of any PBIX file, semantic model, or publicly accessible dashboard that exposes the original data is subject to verifying the necessary permissions. A public portfolio demo may instead use an independently generated synthetic dataset.
+The main objectives are to:
 
-Please consult the original program and dataset maintainer for current usage conditions. This project's SQL, reporting logic, and documentation are distinct from ownership of the source data.
+- Design and implement a dimensional data warehouse in SQL Server.
+- Develop ETL workflows for importing and preparing data.
+- Integrate multiple datasets with incomplete reference relationships.
+- Build a star-schema model suitable for analytical queries.
+- Create reusable business measures using DAX.
+- Design interactive, user-friendly Power BI reports.
+- Explore order, customer, product, and geographic patterns.
 
-## 3. Source files
+This project is independent and is not an official DigiKala reporting solution.
 
-| File | Contents used in this project |
-| --- | --- |
-| `orders.csv` | Sampled order lines, order/customer/product IDs, dates, cities, quantities, and recorded amounts |
-| `product.xlsx` | Product titles, brands, and categories where available |
-| `keifiat.xlsx` | Product-related evaluations and additional product descriptors |
-| `comment.xlsx` | Product-related customer comments and identifiers |
+## Technology Stack
 
-**Important:** These files are sampled extracts, not a complete and consistently linked transactional database. They must not be treated as a comprehensive representation of the DigiKala marketplace.
+| Technology | Application |
+|---|---|
+| SQL Server | Staging database and dimensional data warehouse |
+| T-SQL | Data transformations, dimensional loading, validation, and quality checks |
+| SQL Server Integration Services (SSIS) | Source-data ingestion and ETL workflows |
+| Power BI Desktop | Semantic modeling and interactive report development |
+| Power Query | Data preparation and transformations |
+| DAX | Business metrics, contextual calculations, and analytical measures |
+| GitHub | Source-code management and project documentation |
 
-## 4. Solution architecture
+## Solution Architecture
+
+The implementation follows a layered architecture:
 
 ```mermaid
 flowchart LR
-    A[Source files] --> B[SSIS ingestion]
-    B --> C[SQL Server: stg schema]
-    C --> D[T-SQL transformations and quality checks]
-    D --> E[SQL Server: dw star schema]
-    E --> F[Power BI semantic model]
-    F --> G[Persian RTL dashboards]
+    A["Source Files"] --> B["SSIS ETL"]
+    B --> C["SQL Server Staging"]
+    C --> D["T-SQL Transformations"]
+    D --> E["Dimensional Data Warehouse"]
+    E --> F["Power BI Semantic Model"]
+    F --> G["Interactive Dashboards"]
 ```
 
-### Staging layer
+### 1. Source Ingestion and Staging
 
-The four source datasets were imported into SQL Server under the `stg` schema. This layer keeps the original source structure separate from downstream warehouse transformations.
+Four source datasets are imported into SQL Server using SSIS.
 
-### Dimensional warehouse
+The `stg` schema separates source ingestion from downstream analytical transformations and provides a foundation for data validation.
 
-The analytical warehouse is built in the `dw` schema:
+### 2. Data Warehouse Design
 
-| Object | Purpose |
-| --- | --- |
-| `dw.FactOrderLine` | Order-line grain, quantities, recorded amounts, and dimension foreign keys |
-| `dw.DimDate` | Gregorian and Persian calendar attributes |
-| `dw.DimCustomer` | Distinct customer business keys mapped to surrogate keys |
-| `dw.DimCity` | Normalized city names and city surrogate keys |
-| `dw.DimProduct` | Product identifiers and available descriptive attributes |
+A dimensional warehouse was implemented in the `dw` schema using a star-schema approach.
 
-The fact table retains the **order-line grain**. Distinct orders must therefore be counted using `OrderID`, rather than simply counting fact rows. Dimension surrogate keys are resolved through business-key lookups during the fact-loading process.
+**Fact table**
 
-The repository is intended to include the reviewed SQL scripts and sanitized SSIS packages. A dedicated technical document describing schemas, loading logic, key mapping, and validation queries will be added separately.
+- `dw.FactOrderLine` — order-line observations, quantities, recorded monetary amounts, and dimension foreign keys.
 
-## 5. Key data-integration challenge: missing product metadata
+**Dimension tables**
 
-A significant issue appeared when joining the orders dataset to the product reference datasets. Many `orders.ID_Item` values **did not have a corresponding product title or category** in the available product metadata.
+- `dw.DimDate` — Gregorian and Persian calendar attributes.
+- `dw.DimCustomer` — customer identifiers and surrogate keys.
+- `dw.DimProduct` — product identifiers and available descriptive attributes.
+- `dw.DimCity` — normalized city names and surrogate keys.
 
-Initial profiling of roughly **200,000 order-line records** indicated that descriptive product titles could be recovered for only about **7.96% of order lines** by combining the relevant available metadata sources. In other words, around **92.04%** of sampled order lines still lacked a recoverable product title. These are approximate profiling results and should be revalidated using the final SQL checks before being treated as final published statistics.
+The fact table maintains an **order-line grain**. Distinct orders are calculated from `OrderID`, avoiding incorrect order counts caused by multiple line items.
 
-### How the issue was handled
+Warehouse surrogate keys are resolved through business-key lookups during fact loading.
 
-1. **Detected unmatched keys:** Used SQL joins, including anti-join checks, to assess the overlap of product IDs across source tables.
-2. **Consolidated available product references:** Built the product dimension from a union of distinct product identifiers drawn from the relevant sources; preferred existing product-table descriptions and used other available descriptors where appropriate.
-3. **Included order-referenced product IDs:** Added `ID_Item` values appearing in `orders` even if their descriptive metadata was missing.
-4. **Mapped valid surrogate keys:** Resolved `ProductKey` for fact rows via `DimProduct.ProductID`, preserving fact-to-dimension referential integrity rather than dropping valid transactions with unmatched metadata.
-5. **Preserved missing descriptions:** Left unavailable titles/categories/brands unknown instead of fabricating attributes.
-6. **Restricted interpretation:** Kept order-, customer-, and city-level analyses on valid fact records, while limiting product/category-level claims to records with adequate descriptive coverage.
+### 3. Semantic Modeling
 
-### What was—and was not—resolved
+The warehouse tables are imported into Power BI and connected through fact-to-dimension relationships.
 
-**Resolved:** Coverage of the fact's product business keys in `DimProduct` and the associated warehouse foreign-key mapping.  
-**Not resolved:** The underlying absence of descriptive product metadata.
+The semantic model provides reusable measures for orders, customers, quantities, monetary values, purchasing frequency, and geographic comparisons.
 
-This illustrates the distinction between **referential integrity** (a fact row points to a valid dimension record) and **metadata completeness** (that record actually has a trustworthy title, category, or brand).
+### 4. Reporting Layer
 
-Product/category insights must **not** be presented as representative of all sampled orders when most order lines lack product descriptors.
+The reporting layer uses a Persian RTL interface with custom navigation, coordinated visual styling, and interactive analysis.
 
-## 6. Power BI report
+## Power BI Report
 
-The report uses a custom **Graphite & Coral** visual style, Persian labels, and an **RTL layout**.
+The solution is organized into five analytical areas.
 
-| Page | Analytical purpose | Status |
-| --- | --- | --- |
-| **Executive Overview** | Headline KPIs, order trends, top-city order share, and customer behavior | Implemented; final QA in progress |
-| **Sales Analytics** | Monthly/annual trends, monetary measures, and calendar-based activity | In development |
-| **Customer Intelligence** | Purchase frequency, repeat purchases, and observed new/returning activity | In development / planned |
-| **Geographic Insights** | City-level contributions and comparisons | Planned |
-| **Product Explorer** | Product exploration within reliable metadata coverage | Planned; constrained by missing metadata |
+| Report Page | Analytical Focus |
+|---|---|
+| **Executive Overview** | Key performance indicators, order activity, top cities, and purchasing behavior |
+| **Sales Analytics** | Temporal analysis, monetary trends, average order value, and calendar patterns |
+| **Customer Intelligence** | Purchase frequency, repeat purchases, and observed customer activity |
+| **Geographic Insights** | Geographic concentration, city-level comparisons, and changes in city order share |
+| **Product Explorer** | Product-level exploration, recorded units, category comparisons, and product trends |
 
-### Interaction and design
+The reporting experience includes features such as:
 
-Features implemented or planned across report pages include date/city slicers, navigation buttons, bookmarks for filter-panel visibility, cross-filtering, field parameters, drill-through, and report tooltips. A feature is not considered complete until implemented and tested in the report.
+- Persian right-to-left layout
+- Custom Graphite & Coral theme
+- Interactive slicers
+- Cross-filtering and cross-highlighting
+- Navigation buttons
+- Bookmark-based filtering interfaces
+- Dynamic measures and titles
+- Context-sensitive product and geographic analysis
 
-<!-- Add a screenshot here after reviewing the final report image:
-![Executive Overview](assets/screenshots/executive-overview.png)
--->
+Individual features are reviewed and tested as the report is finalized.
 
-## 7. Analytical measures
+## Selected Analytical Measures
 
-| Metric | Definition / interpretation |
-| --- | --- |
-| **Total Orders** | Distinct count of recorded `OrderID` values |
-| **Total Customers** | Distinct count of customers with recorded order activity |
-| **Total Units** | Sum of recorded order-line quantities |
-| **Repeat Customers** | Customers with at least two distinct orders in the current filter context |
-| **Repeat Purchase Rate** | Repeat Customers ÷ Total Customers |
-| **Orders per Customer** | Total Orders ÷ Total Customers |
-| **Units per Order** | Total Units ÷ Total Orders |
-| **City Order Share** | Orders in a city ÷ orders across all cities, while retaining applicable non-city filters |
-| **AOV** | Recorded monetary amount ÷ distinct orders, **only after validating the monetary field's meaning** |
+| Measure | Description |
+|---|---|
+| Total Orders | Distinct number of recorded orders |
+| Total Customers | Distinct number of customers with observed orders |
+| Total Units | Total quantity of recorded order items |
+| Repeat Purchase Rate | Share of customers with at least two distinct orders in the selected context |
+| Orders per Customer | Average observed order count per customer |
+| Units per Order | Average number of recorded units per order |
+| City Order Share | Share of a city's orders relative to orders across all cities |
+| Average Order Value | Recorded monetary value per distinct order, subject to validation of the source amount definition |
 
-**Metric caveats:** A customer first seen in this sample is not necessarily a genuinely new DigiKala customer. Repeat-purchase measures are also limited to observed transactions. The monetary field (`Amount_Gross_Order` / warehouse `RecordedAmount`) must be validated to establish whether it represents a unit amount, line amount, or another definition before asserting GMV, revenue, or AOV as reliable business metrics. Currency units should also be confirmed.
+DAX calculations are designed to respond to applicable report filters and analytical contexts.
 
-## 8. Repository organization
+## Data Integration and Engineering Challenges
+
+One of the most significant technical challenges in this project was integrating independently sampled datasets with incomplete product-reference coverage.
+
+### Challenge: Unmatched Product Identifiers
+
+During data profiling, many product identifiers in the orders dataset were found to have no corresponding descriptive record in the available product metadata.
+
+Initial analysis of approximately 200,000 order lines indicated that recoverable product titles covered only about **8% of order-line records**, even after consulting supplementary product-related sources.
+
+This figure is provisional and will be verified against the final warehouse before publication.
+
+### Implemented Approach
+
+The following approach was used:
+
+1. Identified unmatched product identifiers through SQL joins and anti-join queries.
+2. Consolidated available product IDs and descriptive information from multiple sources.
+3. Included product identifiers referenced by the orders dataset in the product dimension.
+4. Generated surrogate keys for the dimensional model.
+5. Mapped order lines to valid product-dimension records while preserving transactions.
+6. Retained unknown descriptive attributes rather than inventing product information.
+
+### Outcome
+
+The dimensional model maintains referential integrity without discarding valid order-line records simply because descriptive product metadata is unavailable.
+
+However, resolving product-key coverage does not recover missing product titles, brands, or categories. Product-level interpretations therefore remain limited to records with sufficient metadata.
+
+This distinction between **referential integrity** and **metadata completeness** is an important part of the project's data-engineering approach.
+
+Detailed implementation notes and validation SQL will be included in the Data Warehouse documentation.
+
+## Data Source and Attribution
+
+The project uses historical datasets attributed to the **DigiKala Open Data Mining Program**.
+
+The files were obtained from a third-party GitHub repository:
+
+**Dataset repository:** [farshadnp/DigiKalaDataSet](https://github.com/farshadnp/DigiKalaDataSet)
+
+**Original program reference:** [DigiKala Open Data](https://www.digikala.com/opendata/)
+
+### Source Files
+
+| Source | Description |
+|---|---|
+| `orders.csv` | Sampled order-line transactions |
+| `product.xlsx` | Product metadata, including available titles, categories, and brands |
+| `keifiat.xlsx` | Product-related evaluation records and additional descriptive information |
+| `comment.xlsx` | Product-related comment records and identifiers |
+
+The original repository maintainer states that these files were obtained from the DigiKala Open Data program.
+
+**I did not crawl, scrape, collect, or originally publish the source datasets.** My contribution consists of data preparation, integration, data warehouse development, analytical modeling, and report implementation.
+
+The original program requests the following acknowledgment:
+
+> This publication was supported by the Digikala Open Data Mining Program.
+
+This acknowledgment is included for source attribution and does not imply sponsorship or endorsement of this independent project.
+
+## Data Scope and Analytical Limitations
+
+The project uses sampled historical data rather than a complete production transactional database.
+
+The main considerations are:
+
+- Reported values represent the available sample, not total DigiKala operations.
+- Product metadata is incomplete for many recorded order items.
+- Observed customer histories may not include all historical purchases.
+- Product-level analysis is restricted by available descriptive information.
+- Financial metrics depend on validating the definition and currency of the recorded monetary field.
+
+These limitations are considered when interpreting analytical results.
+
+### Data Usage
+
+The original data program documentation, as reproduced by the source repository, restricts direct and indirect commercial use without written permission.
+
+The source datasets are not redistributed through this project repository. Public release of original-data-containing PBIX files, semantic models, or interactive reports is subject to appropriate permissions.
+
+An independently generated synthetic dataset may be used for a publicly accessible demonstration where necessary.
+
+## Repository Structure
+
+The intended repository organization is:
 
 ```text
 digikala-bi-analytics/
 ├── README.md
 ├── docs/
-│   ├── data-warehouse.md          # Detailed DW documentation (forthcoming)
-│   └── metric-definitions.md      # Measure definitions (forthcoming)
+│   ├── data-warehouse.md
+│   └── metric-definitions.md
 ├── sql/
 │   ├── 01_create_schemas.sql
 │   ├── 02_create_dimensions.sql
@@ -166,37 +248,46 @@ digikala-bi-analytics/
 │   ├── 05_load_fact.sql
 │   └── 06_data_quality_checks.sql
 ├── etl/
-│   └── ssis/                      # Sanitized SSIS packages
+│   └── ssis/
 ├── powerbi/
-│   └── themes/                    # Theme JSON
+│   └── themes/
 └── assets/
-    └── screenshots/              # Report previews
+    └── screenshots/
 ```
 
-> **Structure note:** This is the target structure. Files will be added after reviewing and organizing the working SQL scripts, SSIS packages, theme, and report screenshots. The repository does not contain the original source datasets.
+This is the target project structure. SQL scripts, sanitized SSIS packages, technical documentation, and report screenshots will be added as they are reviewed and prepared for publication.
 
-## 9. Reproducibility and publication
+Original source datasets are intentionally excluded.
 
-A future technical guide will document the supported local build sequence: obtain the source files under their applicable usage terms, load staging data, create and populate dimensional tables, run quality checks, and connect the Power BI semantic model.
+## Future Documentation
 
-For portfolio viewing, this repository will provide screenshots and technical documentation. A **live Power BI Service link** will be added only if the dataset's public use is authorized and the report can be hosted with suitable access and licensing. A time-limited Microsoft Fabric trial is **not assumed to provide permanent public hosting**.
+Additional documentation will cover:
 
-## 10. Scope and limitations
+- Warehouse schema and data model
+- Fact and dimension design
+- Surrogate-key mapping
+- Data-loading logic
+- ETL workflow details
+- Data validation queries
+- DAX measure definitions
+- Report design and interaction logic
 
-- Source data consists of **historical samples**, not all DigiKala transactions.
-- Product datasets have **limited overlap** with the orders dataset.
-- Missing product titles/categories reduce the scope of reliable product-level analysis.
-- An order can have multiple order lines; measures must respect their correct grain.
-- Customer purchase histories may be incomplete; observed first purchase and repeat activity are sample-based.
-- Monetary measures require confirmation of the amount field's definition and currency.
-- No official company-wide operational, profitability, conversion, or customer-acquisition claims are made.
+## Project Status and Next Steps
 
-## 11. Credits
+The project is being refined for portfolio publication.
 
-- **Original data program:** DigiKala Open Data Mining Program
-- **Third-party source repository:** [farshadnp/DigiKalaDataSet](https://github.com/farshadnp/DigiKalaDataSet)
-- **BI solution implementation:** Independent portfolio work covering SQL Server, SSIS, dimensional modeling, DAX, and Power BI
+Remaining work includes final report validation, technical documentation, source-code organization, screenshot preparation, and evaluation of permitted online publishing options.
 
-> This publication was supported by the Digikala Open Data Mining Program.
+A publicly accessible Power BI report link will be added if the necessary data permissions and hosting conditions are satisfied.
 
-**Disclaimer:** This repository is not affiliated with, endorsed by, or officially sponsored by DigiKala. Attribution does not constitute permission to redistribute or commercially use the underlying data.
+---
+
+## Credits
+
+**Data:** DigiKala Open Data Mining Program
+
+**Third-party dataset repository:** [farshadnp/DigiKalaDataSet](https://github.com/farshadnp/DigiKalaDataSet)
+
+**BI implementation:** Independent portfolio project involving SQL Server, SSIS, dimensional modeling, DAX, and Power BI.
+
+**Disclaimer:** This project is not affiliated with, endorsed by, or officially sponsored by DigiKala. All source-data rights remain with their respective owners.
